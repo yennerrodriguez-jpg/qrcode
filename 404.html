@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <!-- Use a more reliable CDN for the library -->
+    <script src="https://cdn.jsdelivr.net"></script>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #f8f9fa; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; }
+        #qrcode { display: inline-block; margin-bottom: 15px; }
+        code { background: #eee; padding: 2px 5px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="qrcode"></div>
+        <p id="msg">Scanning URL for data...</p>
+    </div>
+
+    <script>
+        function generate() {
+            const fullUrl = window.location.href;
+            const urlObj = new URL(fullUrl);
+            
+            // Try 3 ways to find the data:
+            // 1. ?qr=something
+            // 2. ?data=something
+            // 3. /qr=something (fallback for GH Pages 404s)
+            let rawData = urlObj.searchParams.get('qr') || urlObj.searchParams.get('data');
+            
+            if (!rawData && fullUrl.includes('qr=')) {
+                rawData = fullUrl.split('qr=')[1];
+            }
+
+            if (rawData) {
+                const cleanData = decodeURIComponent(rawData);
+                document.getElementById("qrcode").innerHTML = ""; // Clear existing
+                new QRCode(document.getElementById("qrcode"), {
+                    text: cleanData,
+                    width: 256,
+                    height: 256,
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+                document.getElementById("msg").innerText = "QR Content: " + cleanData;
+            } else {
+                document.getElementById("msg").innerHTML = "Usage: <code>/qr=YourContent</code> or <code>?qr=YourContent</code>";
+            }
+        }
+        // Run immediately
+        generate();
+    </script>
+</body>
+</html>
