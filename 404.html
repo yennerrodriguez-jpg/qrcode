@@ -4,63 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Code Generator</title>
-    <!-- Stable, fast CDN -->
-    <script src="https://cdn.jsdelivr.net"></script>
+    <!-- Fixed the library URL -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        body { font-family: -apple-system, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #f8f9fa; }
-        .container { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); text-align: center; }
-        #qrcode { display: inline-block; margin-top: 10px; }
-        #qrcode img { border: 10px solid white; }
-        p { color: #666; margin-top: 20px; font-weight: 500; }
-        code { background: #eee; padding: 3px 6px; border-radius: 4px; font-size: 0.9em; }
+        body { 
+            margin: 0; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            background: #f4f4f9; /* Soft background for contrast */
+        }
+        #qrcode {
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        #qrcode img { 
+            display: block;
+            max-width: 100%;
+            height: auto; 
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div id="qrcode"></div>
-        <p id="msg">Loading library...</p>
-    </div>
+    <div id="qrcode"></div>
 
     <script>
-        function generateQR() {
-            // 1. Check if the QRCode library is actually loaded
-            if (typeof QRCode === "undefined") {
-                setTimeout(generateQR, 100); // Retry in 100ms
-                return;
+        function render() {
+            const params = new URLSearchParams(window.location.search);
+            let data = params.get('qr');
+
+            // Fallback for /qr= path-style triggers
+            if (!data && window.location.href.includes('qr=')) {
+                data = window.location.href.split('qr=').pop();
             }
 
-            const currentUrl = window.location.href;
-            const urlObj = new URL(currentUrl);
-            
-            // 2. Extract data from ?qr= or /qr=
-            let rawData = urlObj.searchParams.get('qr');
-            
-            if (!rawData && currentUrl.includes('qr=')) {
-                // Splits at 'qr=' and takes everything after it
-                const parts = currentUrl.split('qr=');
-                rawData = parts[parts.length - 1];
-            }
-
-            const msgElement = document.getElementById("msg");
-
-            if (rawData) {
-                const cleanData = decodeURIComponent(rawData);
-                document.getElementById("qrcode").innerHTML = ""; // Reset
-                
+            if (data) {
                 new QRCode(document.getElementById("qrcode"), {
-                    text: cleanData,
-                    width: 256,
-                    height: 256,
+                    text: decodeURIComponent(data),
+                    width: 512,
+                    height: 512,
                     correctLevel: QRCode.CorrectLevel.H
                 });
-                msgElement.innerText = "Target: " + cleanData;
             } else {
-                msgElement.innerHTML = "Usage: <code>/qr=YourLink</code>";
+                document.getElementById("qrcode").innerText = "No data provided.";
             }
         }
 
-        // Start the process
-        window.onload = generateQR;
+        // Initialize once DOM is ready
+        window.addEventListener('load', render);
     </script>
 </body>
 </html>
