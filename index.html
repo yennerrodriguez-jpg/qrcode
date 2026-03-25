@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <!-- Lightweight QR Library -->
+    <script src="https://cdnjs.cloudflare.com"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 350px;
+        }
+        #qrcode {
+            display: flex;
+            justify-content: center;
+        }
+        #qrcode img {
+            border: 8px solid #fff;
+        }
+        h2 { margin-top: 0; font-size: 1.2rem; color: #007bff; }
+        p { font-size: 0.9rem; color: #666; word-break: break-all; margin: 15px 0; }
+        code { background: #eee; padding: 2px 4px; border-radius: 4px; font-family: monospace; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>QR Generator</h2>
+        <div id="qrcode"></div>
+        <p id="display-text">No data provided.</p>
+    </div>
+
+    <script>
+        // 1. Grab data from the URL: ?qr=YourText
+        const params = new URLSearchParams(window.location.search);
+        const rawData = params.get('qr');
+
+        if (rawData) {
+            const data = decodeURIComponent(rawData);
+            
+            // 2. Generate the QR
+            new QRCode(document.getElementById("qrcode"), {
+                text: data,
+                width: 256,
+                height: 256,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+
+            document.getElementById("display-text").innerText = "Data: " + data;
+
+        } else {
+            document.getElementById("display-text").innerHTML = 
+                "To use, add <code>?qr=YourText</code> to the end of the URL.";
+        }
+    </script>
+</body>
+</html>
